@@ -34,5 +34,18 @@ export interface User {
     created_at: string;
     updated_at: string;
 }
+export interface Event {
+    id: number;
+    owner_id: number
+    name: string
+    description: string
+    start: string
+    end: string
+    location_name: string
+    location_address: string
+    location_url: string
+    image: string
+    color: string
+}
 
 export type BreadcrumbItemType = BreadcrumbItem;

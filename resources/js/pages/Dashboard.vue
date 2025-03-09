@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
-import PlaceholderPattern from '../components/PlaceholderPattern.vue';
+
+import {Head} from "@inertiajs/vue3";
+import AppLayout from "@/layouts/AppLayout.vue";
+import type {BreadcrumbItem} from "@/types";
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -11,11 +11,8 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 </script>
-
 <template>
-    <Head title="Dashboard" />
-
+    <Head title="Explore"/>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <PlaceholderPattern></PlaceholderPattern>
     </AppLayout>
 </template>

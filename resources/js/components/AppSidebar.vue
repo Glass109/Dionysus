@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import {type NavItem} from '@/types';
 import {Link} from '@inertiajs/vue3';
-import {BookOpen, Folder, LayoutGrid, Clock, Megaphone} from 'lucide-vue-next';
+import {LayoutGrid, Clock, Megaphone, Earth} from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -24,13 +24,18 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Eventos subscritos',
-        href: '/dashboard/events',
+        href: '/dashboard/events/subscribed',
         icon: Clock,
     },
     {
         title: 'Mis Eventos',
         href: '/dashboard/events/owned',
         icon: Megaphone,
+    },
+    {
+        title: 'Explorar',
+        href: '/dashboard/events/explore',
+        icon: Earth,
     },
 ];
 
