@@ -20,7 +20,7 @@ class EventoFactory extends Factory
             'location_name' => $this->faker->company,
             'location_address' => $this->faker->address,
             'location_url' => $this->faker->url,
-            'image' => $this->faker->imageUrl(),
+            'image' => 'https://loremflickr.com/640/480/dog"',
             'color' => $this->faker->hexColor,
         ];
     }

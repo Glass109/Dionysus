@@ -34,7 +34,7 @@ class EventoController extends Controller
      */
     public function index()
     {
-        $events = Evento::orderBy('created_at', 'desc')->get();
+        $events = Evento::limit(10)->orderBy('created_at', 'desc')->get();
         return Inertia::render('Events/Explore', [
             'events' => $events,
         ]);
