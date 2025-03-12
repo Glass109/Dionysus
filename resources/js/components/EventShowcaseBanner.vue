@@ -2,41 +2,13 @@
 import type {Event} from '@/types';
 import {router} from '@inertiajs/vue3';
 import {computed, ref} from 'vue';
-
+import {ageGroupToRGBAColor} from "@/lib/utils";
+import {spanishMapping} from "@/lib/utils";
 const props = defineProps<{
     event: Event,
 }>();
-const spanishMapping = {
-    'all': 'Todos',
-    'kids': 'Niños',
-    'teens': 'Adolescentes',
-    'young': 'Adultos jóvenes',
-    'adults': 'Adultos',
-    'middle': 'Adultos de mediana edad',
-    'seniors': 'Adultos mayores',
-    'other': 'Otros',
-};
 
-const badgeColorBasedOnAgeGroup = computed(() => {
-    switch (props.event.age_group) {
-        case 'kids':
-            return 'rgba(255, 0, 0, 0.5)';      // red
-        case 'teens':
-            return 'rgba(0, 0, 255, 0.5)';      // blue
-        case 'young':
-            return 'rgba(0, 255, 0, 0.5)';      // green
-        case 'adults':
-            return 'rgba(255, 255, 0, 0.5)';    // yellow
-        case 'middle':
-            return 'rgba(255, 165, 0, 0.5)';    // orange
-        case 'seniors':
-            return 'rgba(128, 0, 128, 0.5)';    // purple
-        case 'other':
-            return 'rgba(128, 128, 128, 0.5)';  // gray
-        default:
-            return 'rgba(128, 128, 128, 0.5)';  // gray
-    }
-});
+const badgeColorBasedOnAgeGroup = ageGroupToRGBAColor(props.event.age_group);
 function onClick(): void {
     router.visit(route('events.show', props.event.id));
 }

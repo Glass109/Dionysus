@@ -2,13 +2,34 @@
 import AppLayout from "@/layouts/AppLayout.vue";
 import {Head} from '@inertiajs/vue3'
 import type {BreadcrumbItem, Event} from "@/types";
-import {AvatarImage} from "@/components/ui/avatar";
 import {computed, ref} from "vue";
 import PlaceholderPattern from "@/components/PlaceholderPattern.vue";
+import {Button} from "@/components/ui/button";
+import Icon from "@/components/Icon.vue";
+import {ageGroupToRGBAColor, spanishMapping} from "../../lib/utils";
 
-const props = defineProps<{event: Event}>()
-const ownerInitials = computed(() => props.event.owner?.name ? props.event.owner?.name.split(' ').map(word => word[0]).join('') : '??')
+const props = defineProps<{ event: Event }>()
 const imageLoaded = ref(false);
+const formatDate = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    };
+
+    const currentYear = new Date().getFullYear();
+    const dateYear = date.getFullYear();
+
+    if (dateYear === currentYear) {
+        delete options.year;
+    }
+
+    return date.toLocaleDateString('es-ES', options)
+        .replace(/^\w/, c => c.toUpperCase());
+};
+
+const formattedStartDate = computed(() => formatDate(new Date(props.event.start)));
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Eventos',
@@ -25,9 +46,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
         <Head title="Show"/>
-        <div class="grid grid-cols-1 p-4 text-white">
-            <div class="relative h-[30em]">
-                <PlaceholderPattern v-show="!imageLoaded" class="absolute inset-0 animate-pulse  rounded-2xl"></PlaceholderPattern>
+        <div class="grid grid-cols-1 p-4" style="background-image: linear-gradient(180deg, var(--event-color), transparent)" :style="{'--event-color': event.color}">
+            <div class="relative h-[30em] shadow">
+                <PlaceholderPattern v-show="!imageLoaded"
+                                    class="absolute inset-0 animate-pulse  rounded-2xl"></PlaceholderPattern>
                 <img
                     :src="event.image"
                     alt="Imagen del evento"
@@ -36,17 +58,24 @@ const breadcrumbs: BreadcrumbItem[] = [
                     class="transition-opacity duration-300"
                 >
             </div>
-            <div :style="{'background-color': event.color}" class="min-h-16 -mt-6 rounded-[1rem] p-4">
+            <div class="min-h-16 -mt-6 rounded-[1rem] p-4">
                 <h1 class="text-3xl font-bold mt-4">{{ event.name }}</h1>
                 <p class="text-lg">{{ event.description }}</p>
                 <hr class="opacity-20 my-4">
-                <div class="flex flex-col">
-                    <span class="text-gray-300">Organizado por:</span>
-                    <div class="flex items-center rounded-md bg-black/50 pl-2 pr-4 py-2 gap-2 border w-fit">
-                        <span class="text-sm rounded-sm bg-white text-black p-2">
-                            {{ownerInitials}}
-                        </span>
-                        <span class="text-md">{{ event.owner?.name }}</span>
+                <div class="grid grid-cols-2">
+                    <div class="sl">
+                        <span>Organizado por:</span>
+                        <Button variant="outline" class="text-md font-bold underline">{{ event.owner?.name }}</Button>
+                    </div>
+                    <div class="sl">
+                        <Icon name="calendar" class="event-color"/>
+                        <span>Fecha:</span>
+                        <span class="text-lg">{{ formattedStartDate }}</span>
+                    </div>
+                    <div class="sl">
+                        <Icon name="user" class="event-color"/>
+                        <span>Dirigido a:</span>
+                        <span class="italic"> {{spanishMapping[event.age_group]}}</span>
                     </div>
                 </div>
             </div>
@@ -64,5 +93,13 @@ img {
     position: absolute;
     top: 0;
     left: 0;
+}
+/*Straight Line*/
+.sl{
+    @apply flex justify-center items-center gap-2
+}
+
+.event-color{
+    color: var(--event-color);
 }
 </style>

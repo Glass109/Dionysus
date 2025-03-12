@@ -39,8 +39,8 @@ export interface Event {
     owner_id: number
     name: string
     description: string
-    start: string
-    end: string
+    start: Date
+    end: Date
     location_name: string
     location_address: string
     location_url: string

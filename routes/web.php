@@ -11,9 +11,9 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return redirect('/events/explore');
 })->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/events/owned', [\App\Http\Controllers\EventoController::class, 'owned'])->middleware(['auth', 'verified'])->name('dashboard.events.owned');
-Route::get('/events/explore', [\App\Http\Controllers\EventoController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard.events.subscribed');
-Route::get('/events/subscribed', [\App\Http\Controllers\EventoController::class, 'subscribed'])->middleware(['auth', 'verified'])->name('dashboard.events.subscribed');
-Route::get('/events/{id}', [\App\Http\Controllers\EventoController::class, 'show'])->middleware(['auth', 'verified'])->name('dashboard.events.show');
+Route::get('/events/owned', [\App\Http\Controllers\EventoController::class, 'owned'])->middleware(['auth', 'verified'])->name('events.owned');
+Route::get('/events/explore', [\App\Http\Controllers\EventoController::class, 'index'])->middleware(['auth', 'verified'])->name('events.subscribed');
+Route::get('/events/subscribed', [\App\Http\Controllers\EventoController::class, 'subscribed'])->middleware(['auth', 'verified'])->name('events.subscribed');
+Route::get('/events/{id}', [\App\Http\Controllers\EventoController::class, 'show'])->middleware(['auth', 'verified'])->name('events.show');
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
