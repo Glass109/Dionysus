@@ -8,6 +8,29 @@ use Inertia\Inertia;
 
 class EventoController extends Controller
 {
+    public function handleSubscribe(Request $request)
+    {
+        try {
+            $evento = Evento::findOrFail($request->evento_id);
+
+            // Check if user is already subscribed
+            if ($evento->participants()->where('user_id', auth()->id())->exists()) {
+                return response()->json([
+                    'message' => 'Ya estás suscrito a este evento'
+                ], 422);
+            }
+
+            $evento->participants()->attach(auth()->id());
+
+            return response()->json([
+                'message' => '¡Te has suscrito al evento!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al suscribirse al evento'
+            ], 500);
+        }
+    }
     public function owned(Request $request)
     {
         $events = Evento::where('owner_id', auth()->id())
@@ -59,10 +82,15 @@ class EventoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Evento $evento)
+    public function show(Request $request)
     {
+        $evento = Evento::findOrFail($request->id)
+            ->load([
+                'owner:id,name',
+                'participants:id,name'
+            ]);
         return Inertia::render('Events/Show', [
-            'event' => $evento->load('owner'),
+            'event' => $evento,
         ]);
     }
 

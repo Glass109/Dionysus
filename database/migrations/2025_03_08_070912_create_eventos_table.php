@@ -22,7 +22,9 @@ return new class extends Migration
             $table->string('location_address');
             $table->string('location_url')->nullable();
             $table->string('image')->nullable();
-            $table->string('color');
+            $table->string('color')->default('#000000');
+            $table->boolean('is_public')->default(true);
+            $table->string('age_group')->default('all');
             $table->timestamps();
         });
         Schema::create('users_eventos', function (Blueprint $table) {

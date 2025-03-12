@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class EventoFactory extends Factory
 {
     protected $model = Evento::class;
+    private array $ageGroups = ['kids', 'teens', 'young', 'adults', 'middle', 'seniors', 'all', 'other'];
 
     public function definition(): array
     {
@@ -17,6 +18,7 @@ class EventoFactory extends Factory
             'description' => $this->faker->paragraph,
             'start' => $this->faker->dateTimeBetween('now', '+1 year'),
             'end' => $this->faker->dateTimeBetween('now', '+1 year'),
+            'age_group' => $this->ageGroups[array_rand($this->ageGroups)],
             'location_name' => $this->faker->company,
             'location_address' => $this->faker->address,
             'location_url' => $this->faker->url,

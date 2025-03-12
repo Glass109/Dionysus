@@ -28,6 +28,8 @@ class Evento extends Model
         'location_url',
         'image',
         'color',
+        'is_public',
+        'age_group',
     ];
 
     /**

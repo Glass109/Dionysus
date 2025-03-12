@@ -45,7 +45,10 @@ export interface Event {
     location_address: string
     location_url: string
     image: string
+    age_group: | 'kids' | 'teens' | 'young' | 'adults'| 'middle' | 'seniors' | 'all' | 'other'
     color: string
+    owner?: User
+    participants?: User[]
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;

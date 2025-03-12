@@ -13,32 +13,27 @@ import {
 } from '@/components/ui/sidebar';
 import {type NavItem} from '@/types';
 import {Link} from '@inertiajs/vue3';
-import {LayoutGrid, Clock, Megaphone, Earth} from 'lucide-vue-next';
+import {Clock, Megaphone, Earth} from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
-const mainNavItems: NavItem[] = [
+
+const eventsNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
+        title: 'Explorar',
+        href: '/events/explore',
+        icon: Earth,
     },
     {
         title: 'Eventos subscritos',
-        href: '/dashboard/events/subscribed',
+        href: '/events/subscribed',
         icon: Clock,
     },
     {
         title: 'Mis Eventos',
-        href: '/dashboard/events/owned',
+        href: '/events/owned',
         icon: Megaphone,
     },
-    {
-        title: 'Explorar',
-        href: '/dashboard/events/explore',
-        icon: Earth,
-    },
 ];
-
 const footerNavItems: NavItem[] = [];
 </script>
 
@@ -57,7 +52,7 @@ const footerNavItems: NavItem[] = [];
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems"/>
+            <NavMain title="Eventos" :items="eventsNavItems"/>
         </SidebarContent>
 
         <SidebarFooter>
