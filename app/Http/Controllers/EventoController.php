@@ -31,10 +31,33 @@ class EventoController extends Controller
             ], 500);
         }
     }
+    public function handleUnsubscribe(Request $request)
+    {
+        try {
+            $evento = Evento::findOrFail($request->evento_id);
+
+            // Check if user is subscribed
+            if (!$evento->participants()->where('user_id', auth()->id())->exists()) {
+                return response()->json([
+                    'message' => 'No estás suscrito a este evento'
+                ], 422);
+            }
+
+            $evento->participants()->detach(auth()->id());
+
+            return response()->json([
+                'message' => 'Te has dado de baja del evento'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al dar de baja del evento'
+            ], 500);
+        }
+    }
     public function owned(Request $request)
     {
         $events = Evento::where('owner_id', auth()->id())
-            ->orderBy('created_at', 'desc')->limit(20)->get();
+            ->orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Events/Owned', [
             'events' => $events,
@@ -45,7 +68,7 @@ class EventoController extends Controller
     {
         $events = Evento::whereHas('participants', function ($query) {
             $query->where('user_id', auth()->id());
-        })->orderBy('created_at', 'desc')->limit(20)->get();
+        })->orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Events/Subscribed', [
             'events' => $events,
@@ -57,7 +80,7 @@ class EventoController extends Controller
      */
     public function index()
     {
-        $events = Evento::limit(10)->orderBy('created_at', 'desc')->get();
+        $events = Evento::orderBy('created_at', 'desc')->get();
         return Inertia::render('Events/Explore', [
             'events' => $events,
         ]);
@@ -89,8 +112,11 @@ class EventoController extends Controller
                 'owner:id,name',
                 'participants:id,name'
             ]);
+        $participantsCount = $evento->participants->count();
         return Inertia::render('Events/Show', [
             'event' => $evento,
+            'participantsCount' => $participantsCount,
+            'isSubscribed' => $evento->participants()->where('user_id', auth()->id())->exists()
         ]);
     }
 
