@@ -5,11 +5,18 @@ import type {BreadcrumbItem, Event} from "@/types";
 import {computed, ref} from "vue";
 import PlaceholderPattern from "@/components/PlaceholderPattern.vue";
 import {Button} from "@/components/ui/button";
-import {ageGroupToRGBAColor, spanishMapping} from "@/lib/utils";
+import {spanishMapping} from "@/lib/utils";
 import {
-    User2, UserRoundPen, Calendar, MapIcon,
-    Clock1Icon, UsersIcon, ExternalLinkIcon,
-    UserRoundPlusIcon, StarIcon, UserRoundCheckIcon // Added UserRoundCheckIcon
+    Calendar,
+    Clock1Icon,
+    ExternalLinkIcon,
+    MapIcon,
+    StarIcon,
+    User2,
+    UserRoundCheckIcon,
+    UserRoundPen,
+    UserRoundPlusIcon,
+    UsersIcon
 } from "lucide-vue-next";
 import axios from 'axios'; // Import axios for API requests
 
@@ -155,9 +162,12 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <div class="sl">
                         <UsersIcon class="event-color"/>
                         <span>Participantes:</span>
-                        <span class="font-bold">{{ participantsCounter > 0 ? participantsCounter : '-' }}</span>
+                        <span class="font-bold">{{
+                                participantsCounter > 0 ? participantsCounter : '-'
+                            }} / {{ event.capacity }}</span>
                     </div>
-                    <div class="col-span-2 flex justify-end gap-4 mt-8">
+                    <div class="col-span-2 flex justify-end items-center gap-4 mt-8">
+                        <span>Precio: ${{ event.price }}</span>
                         <Button class="group shadow-lg hover:scale-110 hover:brightness-105 transition-all w-48"
                                 size="lg" variant="secondary">
                             <StarIcon class="group-hover:text-yellow-500 group-hover:animate-bounce"/>

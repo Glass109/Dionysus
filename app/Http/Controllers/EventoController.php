@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Evento;
+use Exception;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class EventoController extends Controller
 {
+    #region Ajax methods
     public function handleSubscribe(Request $request)
     {
         try {
@@ -15,22 +17,17 @@ class EventoController extends Controller
 
             // Check if user is already subscribed
             if ($evento->participants()->where('user_id', auth()->id())->exists()) {
-                return response()->json([
-                    'message' => 'Ya estás suscrito a este evento'
-                ], 422);
+                return response()->json(['message' => 'Ya estás suscrito a este evento'], 422);
             }
 
             $evento->participants()->attach(auth()->id());
 
-            return response()->json([
-                'message' => '¡Te has suscrito al evento!'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error al suscribirse al evento'
-            ], 500);
+            return response()->json(['message' => '¡Te has suscrito al evento!']);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Error al suscribirse al evento'], 500);
         }
     }
+
     public function handleUnsubscribe(Request $request)
     {
         try {
@@ -38,52 +35,91 @@ class EventoController extends Controller
 
             // Check if user is subscribed
             if (!$evento->participants()->where('user_id', auth()->id())->exists()) {
-                return response()->json([
-                    'message' => 'No estás suscrito a este evento'
-                ], 422);
+                return response()->json(['message' => 'No estás suscrito a este evento'], 422);
             }
 
             $evento->participants()->detach(auth()->id());
 
-            return response()->json([
-                'message' => 'Te has dado de baja del evento'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error al dar de baja del evento'
-            ], 500);
+            return response()->json(['message' => 'Te has dado de baja del evento']);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Error al dar de baja del evento'], 500);
         }
     }
+
+    #endregion
+    public function index(Request $request)
+    {
+        $query = Evento::query();
+        $query = $this->applyFilters($query, $request);
+        $events = $query->get();
+
+        return Inertia::render('Events/Explore', ['events' => $events, 'filters' => $this->getFiltersArray($request)]);
+    }
+
+    private function applyFilters($query, Request $request)
+    {
+        // Filter by age group
+        if ($request->has('age_group') && $request->age_group) {
+            $query->where('age_group', $request->age_group);
+        }
+
+//         Filter by price range
+        if ($request->has('min_price') && is_numeric($request->min_price)) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->has('max_price') && is_numeric($request->max_price)) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        // Filter by time range
+        if ($request->has('start_date') && $request->start_date) {
+            $query->where('start', '>=', $request->start_date);
+        }
+
+        if ($request->has('end_date') && $request->end_date) {
+            $query->where('end', '<=', $request->end_date);
+        }
+
+        // Apply sorting
+        $query->orderBy($request->input('sort_by', 'created_at'), $request->input('sort_direction', 'desc'));
+
+        return $query;
+    }
+
+    private function getFiltersArray(Request $request): array
+    {
+        return [
+            'age_group' => $request->age_group ?: null,
+            'min_price' => is_numeric($request->min_price) ? (float)$request->min_price : null,
+            'max_price' => is_numeric($request->max_price) ? (float)$request->max_price : null,
+            'start_date' => $request->start_date ?: null,
+            'end_date' => $request->end_date ?: null,
+            'sort_by' => $request->input('sort_by', 'created_at'),
+            'sort_direction' => in_array($request->input('sort_direction'), ['asc', 'desc'])
+                ? $request->input('sort_direction')
+                : 'desc',
+        ];
+    }
+
     public function owned(Request $request)
     {
-        $events = Evento::where('owner_id', auth()->id())
-            ->orderBy('created_at', 'desc')->get();
+        $query = Evento::where('owner_id', auth()->id());
+        $query = $this->applyFilters($query, $request);
+        $events = $query->get();
 
-        return Inertia::render('Events/Owned', [
-            'events' => $events,
-        ]);
+        return Inertia::render('Events/Owned', ['events' => $events, 'filters' => $this->getFiltersArray($request)]);
     }
 
     public function subscribed(Request $request)
     {
-        $events = Evento::whereHas('participants', function ($query) {
+        $query = Evento::whereHas('participants', function ($query) {
             $query->where('user_id', auth()->id());
-        })->orderBy('created_at', 'desc')->get();
+        });
+        $query = $this->applyFilters($query, $request);
+        $events = $query->get();
 
-        return Inertia::render('Events/Subscribed', [
-            'events' => $events,
-        ]);
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $events = Evento::orderBy('created_at', 'desc')->get();
-        return Inertia::render('Events/Explore', [
-            'events' => $events,
-        ]);
+        return Inertia::render('Events/Subscribed', ['events' => $events, 'filters' => $this->getFiltersArray($request)]);
     }
 
     /**
@@ -107,17 +143,9 @@ class EventoController extends Controller
      */
     public function show(Request $request)
     {
-        $evento = Evento::findOrFail($request->id)
-            ->load([
-                'owner:id,name',
-                'participants:id,name'
-            ]);
+        $evento = Evento::findOrFail($request->id)->load(['owner:id,name', 'participants:id,name']);
         $participantsCount = $evento->participants->count();
-        return Inertia::render('Events/Show', [
-            'event' => $evento,
-            'participantsCount' => $participantsCount,
-            'isSubscribed' => $evento->participants()->where('user_id', auth()->id())->exists()
-        ]);
+        return Inertia::render('Events/Show', ['event' => $evento, 'participantsCount' => $participantsCount, 'isSubscribed' => $evento->participants()->where('user_id', auth()->id())->exists()]);
     }
 
     /**
@@ -127,6 +155,7 @@ class EventoController extends Controller
     {
         //
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -143,6 +172,4 @@ class EventoController extends Controller
     {
         //
     }
-
-
 }

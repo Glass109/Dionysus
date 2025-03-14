@@ -1,6 +1,6 @@
-import type { PageProps } from '@inertiajs/core';
-import type { LucideIcon } from 'lucide-vue-next';
-import type { Config } from 'ziggy-js';
+import type {PageProps} from '@inertiajs/core';
+import type {LucideIcon} from 'lucide-vue-next';
+import type {Config} from 'ziggy-js';
 
 export interface Auth {
     user: User;
@@ -41,6 +41,8 @@ export interface Event {
     description: string
     start: Date
     end: Date
+    price: number
+    capacity: number
     location_name: string
     location_address: string
     location_url: string
@@ -49,6 +51,16 @@ export interface Event {
     color: string
     owner?: User
     participants?: User[]
+}
+
+export interface EventFilters {
+    age_group: string | null;
+    min_price: number | null;
+    max_price: number | null;
+    start_date: string | null;
+    end_date: string | null;
+    sort_by: string;
+    sort_direction: 'asc' | 'desc';
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;

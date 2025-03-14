@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import {type BreadcrumbItem} from '@/types';
-import {Head} from '@inertiajs/vue3';
 import type {Event} from '@/types';
+import {type BreadcrumbItem, EventFilters} from '@/types';
+import {Head, usePage} from '@inertiajs/vue3';
 import EventShowcaseBanner from "@/components/EventShowcaseBanner.vue";
 import {computed, onMounted, ref} from "vue";
+import EventFiltersToolbar from "@/components/EventFiltersToolbar.vue";
 
 defineProps<{
     events: Array<Event>;
+    filters: EventFilters;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -57,6 +59,9 @@ onMounted(() => {
     setInterval(cycleTranslation, 3000);
 });
 
+// Get the current route from Inertia
+const page = usePage();
+const currentRoute = computed(() => page.url);
 
 </script>
 
@@ -68,6 +73,7 @@ onMounted(() => {
                 <h1 class="title" :key="displayedTranslation">{{ displayedTranslation }}</h1>
             </Transition>
         </div>
+        <EventFiltersToolbar :filters="filters" :route="currentRoute"/>
         <Transition appear>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 items-center p-4">
                 <EventShowcaseBanner v-for="event in events" :event="event"/>

@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Evento;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Storage;
 
 class EventoFactory extends Factory
 {
@@ -17,7 +16,9 @@ class EventoFactory extends Factory
             'owner_id' => 1,
             'name' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
-            'start' => $this->faker->dateTimeBetween('now', '+1 year'),
+            'price' => $this->faker->numberBetween(0, 1000),
+            'capacity' => $this->faker->numberBetween(1, 1000),
+            'start' => $this->faker->dateTimeBetween('-1 year', '+1 year'),
             'end' => $this->faker->dateTimeBetween('now', '+1 year'),
             'age_group' => $this->ageGroups[array_rand($this->ageGroups)],
             'location_name' => $this->faker->company,
