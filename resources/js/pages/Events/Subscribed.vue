@@ -19,22 +19,28 @@ const eventsWithDelay = computed(() => {
 </script>
 
 <template>
+    <Head title="Subscribed"/>
     <AppLayout>
-        <Head title="Subscribed"/>
-        <TransitionGroup
-            tag="div"
-            class="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4"
-            name="stagger-fade"
-        >
-            <div
-                v-for="event in eventsWithDelay"
-                :key="event.id"
-                class="popup-item"
-                :style="{ animationDelay: event.delay }"
-            >
-                <EventShowcaseBanner :event="event"/>
+        <div class="p-4">
+            <div>
+                <h1 class="text-2xl font-bold">Eventos Subscritos</h1>
+                <p class="text-gray-500 dark:text-gray-400">Estos son los eventos a los que te has subscrito</p>
             </div>
-        </TransitionGroup>
+            <TransitionGroup
+                class="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4"
+                name="stagger-fade"
+                tag="div"
+            >
+                <div
+                    v-for="event in eventsWithDelay"
+                    :key="event.id"
+                    :style="{ animationDelay: event.delay }"
+                    class="popup-item"
+                >
+                    <EventShowcaseBanner :event="event"/>
+                </div>
+            </TransitionGroup>
+        </div>
     </AppLayout>
 </template>
 

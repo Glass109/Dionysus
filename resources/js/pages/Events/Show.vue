@@ -65,7 +65,6 @@ const toggleSubscription = async () => {
 const timeOptions = new Intl.DateTimeFormat('es-MX', {
     hour: 'numeric',
     minute: 'numeric',
-    second: 'numeric'
 });
 
 const formatDate = (date: Date) => {
@@ -145,7 +144,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <div class="sl">
                         <MapIcon class="event-color"/>
                         <span>Lugar:</span>
-                        <Button variant="link" class="hover:scale-105 transition-transform"
+                      <Button :href="event.location_url" as="a" class="hover:scale-105 transition-transform"
+                              variant="link"
                                 style="color: var(--event-color)">
                             {{ event.location_name }}
                             <ExternalLinkIcon/>
@@ -155,8 +155,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <Clock1Icon class="event-color"/>
                         <span>Horario:</span>
                         <span class="font-bold">
-                            {{ timeOptions.format(new Date(event.start)) }} -
-                            {{ timeOptions.format(new Date(event.end)) }}
+                            {{ timeOptions.format(new Date(event.start)) }}
                         </span>
                     </div>
                     <div class="sl">

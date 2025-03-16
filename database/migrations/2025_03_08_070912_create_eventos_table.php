@@ -16,10 +16,9 @@ return new class extends Migration
             $table->foreignId('owner_id')->constrained('users');
             $table->string('name');
             $table->text('description');
-            $table->integer('price'); // Pending
-            $table->integer('capacity'); // Pending
+            $table->integer('price');
+            $table->integer('capacity');
             $table->dateTime('start');
-            $table->dateTime('end');
             $table->string('location_name');
             $table->string('location_address');
             $table->string('location_url')->nullable();

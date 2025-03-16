@@ -42,7 +42,6 @@ watch(priceRange, (newRange) => {
 
 // Age group options
 const ageGroupOptions = [
-    {value: '', label: 'Todos'},
     {value: 'kids', label: 'Niños'},
     {value: 'teens', label: 'Adolescentes'},
     {value: 'young', label: 'Adultos Jóvenes'},
@@ -100,12 +99,11 @@ function resetFilters() {
 <template>
     <div class="bg-white shadow rounded-lg p-4 mb-6">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-medium text-gray-700">Filter Events</h2>
+            <h2 class="text-xl font-medium text-muted-foreground">Filtrar eventos</h2>
             <div class="flex items-center space-x-2">
-                <label class="text-sm text-gray-600">Ordenar por:</label>
+                <label class="text-sm text-muted-foreground">Ordenar por:</label>
                 <select
-                    v-model="localFilters.sort_by"
-                    class="text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    v-model="localFilters.sort_by   "
                     @change="applyFilters"
                 >
                     <option v-for="option in sortOptions" :key="option.value" :value="option.value">
@@ -134,8 +132,8 @@ function resetFilters() {
                 <Label class="mb-1">Grupo de edad</Label>
                 <select
                     v-model="localFilters.age_group"
-                    class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                 >
+                    <option :value="null" selected>Seleccionar grupo de edad</option>
                     <option v-for="option in ageGroupOptions" :key="option.value" :value="option.value">
                         {{ option.label }}
                     </option>
@@ -145,14 +143,21 @@ function resetFilters() {
 
             <!-- Date Range Filter -->
             <div>
-                <Label class="mb-1">Fecha</Label>
+                <Label class="mb-1">A partir de</Label>
                 <Input
                     v-model="localFilters.start_date!"
                     type="date"
                 />
             </div>
+            <div>
+                <Label class="mb-1">Hasta</Label>
+                <Input
+                    v-model="localFilters.end_date!"
+                    type="date">
+                    ></Input>
+            </div>
             <!-- Price Range Filter with Slider -->
-            <div class="col-span-1 md:col-span-2">
+            <div class="col-span-1">
                 <div class="flex justify-between items-center mb-1">
                     <Label>Rango de precio</Label>
                     <span class="text-sm text-gray-500">{{ formattedPriceRange }}</span>
@@ -187,4 +192,6 @@ function resetFilters() {
 .filter-transition {
     transition: all 0.3s ease;
 }
+
+
 </style>

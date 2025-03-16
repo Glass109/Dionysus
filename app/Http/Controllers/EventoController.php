@@ -78,7 +78,7 @@ class EventoController extends Controller
         }
 
         if ($request->has('end_date') && $request->end_date) {
-            $query->where('end', '<=', $request->end_date);
+            $query->where('start', '<=', $request->end_date);
         }
 
         // Apply sorting

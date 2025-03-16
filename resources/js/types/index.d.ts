@@ -40,7 +40,6 @@ export interface Event {
     name: string
     description: string
     start: Date
-    end: Date
     price: number
     capacity: number
     location_name: string
@@ -54,7 +53,7 @@ export interface Event {
 }
 
 export interface EventFilters {
-    age_group: string | null;
+    age_group: | 'kids' | 'teens' | 'young' | 'adults' | 'middle' | 'seniors' | 'all' | 'other' | '' | null;
     min_price: number | null;
     max_price: number | null;
     start_date: string | null;

@@ -19,7 +19,6 @@ class EventoFactory extends Factory
             'price' => $this->faker->numberBetween(0, 1000),
             'capacity' => $this->faker->numberBetween(1, 1000),
             'start' => $this->faker->dateTimeBetween('-1 year', '+1 year'),
-            'end' => $this->faker->dateTimeBetween('now', '+1 year'),
             'age_group' => $this->ageGroups[array_rand($this->ageGroups)],
             'location_name' => $this->faker->company,
             'location_address' => $this->faker->address,
