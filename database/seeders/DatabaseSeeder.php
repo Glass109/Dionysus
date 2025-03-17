@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Evento;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,5 +17,6 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             EventoSeeder::class,
         ]);
+        Artisan::call('events:recalculate-tiers');
     }
 }

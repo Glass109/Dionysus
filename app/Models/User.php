@@ -61,4 +61,12 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Evento::class, 'users_eventos', 'user_id', 'evento_id');
     }
+
+    /**
+     * Get reviews written by the user.
+     */
+    public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
 }

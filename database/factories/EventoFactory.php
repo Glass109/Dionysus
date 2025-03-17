@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Evento;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class EventoFactory extends Factory
@@ -12,8 +13,9 @@ class EventoFactory extends Factory
 
     public function definition(): array
     {
+        $owner = User::inRandomOrder()->first();
         return [
-            'owner_id' => 1,
+            'owner_id' => $owner->id,
             'name' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
             'price' => $this->faker->numberBetween(0, 1000),

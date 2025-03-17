@@ -2,13 +2,22 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import type {Event} from '@/types';
 import {type BreadcrumbItem, EventFilters} from '@/types';
-import {Head, usePage} from '@inertiajs/vue3';
+import {Head, usePage, Link} from '@inertiajs/vue3';
 import EventShowcaseBanner from "@/components/EventShowcaseBanner.vue";
 import {computed, onMounted, ref} from "vue";
 import EventFiltersToolbar from "@/components/EventFiltersToolbar.vue";
 
 defineProps<{
-    events: Array<Event>;
+    events: {
+        data: Array<Event>;
+        current_page: number;
+        last_page: number;
+        links: Array<{
+            url: string | null;
+            label: string;
+            active: boolean;
+        }>;
+    };
     filters: EventFilters;
 }>();
 
@@ -76,9 +85,30 @@ const currentRoute = computed(() => page.url);
         <EventFiltersToolbar :filters="filters" :route="currentRoute"/>
         <Transition appear>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 items-center p-4">
-                <EventShowcaseBanner v-for="event in events" :event="event"/>
+                <EventShowcaseBanner v-for="event in events.data" :event="event"/>
             </div>
         </Transition>
+        
+        <!-- Paginación -->
+        <div class="flex justify-center mt-6 gap-2">
+            <template v-for="link in events.links" :key="link.label">
+                <Link
+                    v-if="link.url"
+                    :href="link.url"
+                    class="px-4 py-2 rounded"
+                    :class="{
+                        'bg-primary text-white': link.active,
+                        'bg-gray-200 hover:bg-gray-300': !link.active
+                    }"
+                    v-html="link.label"
+                />
+                <span
+                    v-else
+                    class="px-4 py-2 text-gray-400"
+                    v-html="link.label"
+                />
+            </template>
+        </div>
     </AppLayout>
 </template>
 

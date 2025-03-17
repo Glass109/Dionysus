@@ -50,9 +50,11 @@ export interface Event {
     color: string
     owner?: User
     participants?: User[]
+    tier?: EventTier
 }
 
 export interface EventFilters {
+    min_tier: string | null;
     age_group: | 'kids' | 'teens' | 'young' | 'adults' | 'middle' | 'seniors' | 'all' | 'other' | '' | null;
     min_price: number | null;
     max_price: number | null;

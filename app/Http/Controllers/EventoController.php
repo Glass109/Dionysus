@@ -9,7 +9,14 @@ use Inertia\Inertia;
 
 class EventoController extends Controller
 {
-    #region Ajax methods
+    private const TIER_RANKS = [
+        'STANDARD' => 0,
+        'BRONZE' => 1,
+        'SILVER' => 2,
+        'GOLD' => 3,
+        'PLATINUM' => 4
+    ];
+
     public function handleSubscribe(Request $request)
     {
         try {
@@ -46,14 +53,15 @@ class EventoController extends Controller
         }
     }
 
-    #endregion
     public function index(Request $request)
     {
-        $query = Evento::query();
+        $query = Evento::query()->with('tier');
         $query = $this->applyFilters($query, $request);
-        $events = $query->get();
-
-        return Inertia::render('Events/Explore', ['events' => $events, 'filters' => $this->getFiltersArray($request)]);
+        $events = $query->paginate(15);
+        return Inertia::render('Events/Explore', [
+            'events' => $events,
+            'filters' => $this->getFiltersArray($request)
+        ]);
     }
 
     private function applyFilters($query, Request $request)
@@ -63,7 +71,7 @@ class EventoController extends Controller
             $query->where('age_group', $request->age_group);
         }
 
-//         Filter by price range
+        // Filter by price range
         if ($request->has('min_price') && is_numeric($request->min_price)) {
             $query->where('price', '>=', $request->min_price);
         }
@@ -79,6 +87,17 @@ class EventoController extends Controller
 
         if ($request->has('end_date') && $request->end_date) {
             $query->where('start', '<=', $request->end_date);
+        }
+
+        // Filter by minimum tier
+        if ($request->has('min_tier') && $request->min_tier) {
+            $minTierRank = self::TIER_RANKS[$request->min_tier];
+            $query->whereHas('tier', function($query) use ($minTierRank) {
+                $query->whereIn('tier', array_filter(
+                    array_keys(self::TIER_RANKS),
+                    fn($tier) => self::TIER_RANKS[$tier] >= $minTierRank
+                ));
+            });
         }
 
         // Apply sorting
@@ -99,12 +118,13 @@ class EventoController extends Controller
             'sort_direction' => in_array($request->input('sort_direction'), ['asc', 'desc'])
                 ? $request->input('sort_direction')
                 : 'desc',
+            'min_tier' => $request->min_tier ?: null,
         ];
     }
 
     public function owned(Request $request)
     {
-        $query = Evento::where('owner_id', auth()->id());
+        $query = Evento::where('owner_id', auth()->id())->with('tier');
         $query = $this->applyFilters($query, $request);
         $events = $query->get();
 
@@ -115,9 +135,9 @@ class EventoController extends Controller
     {
         $query = Evento::whereHas('participants', function ($query) {
             $query->where('user_id', auth()->id());
-        });
+        })->with('tier');
         $query = $this->applyFilters($query, $request);
-        $events = $query->get();
+        $events = $query->paginate(15);
 
         return Inertia::render('Events/Subscribed', ['events' => $events, 'filters' => $this->getFiltersArray($request)]);
     }
@@ -127,15 +147,46 @@ class EventoController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Events/Create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created resource in storage and assign a Standard tier.
      */
     public function store(Request $request)
     {
-        //
+        \Log::info('Datos recibidos:', $request->all());
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'start' => 'required|date',
+            'price' => 'required|numeric|min:0',
+            'capacity' => 'required|integer|min:1',
+            'location_name' => 'required|string|max:255',
+            'location_address' => 'required|string',
+            'location_url' => 'nullable|url',
+            'image' => 'required|string',
+            'age_group' => 'required|string',
+            'color' => 'required|string',
+        ]);
+
+        $evento = Evento::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'start' => $request->start,
+            'price' => intval($request->input('price', 0)),
+            'capacity' => intval($request->input('capacity', 1)),
+            'location_name' => $request->location_name,
+            'location_address' => $request->location_address,
+            'location_url' => $request->location_url,
+            'image' => $request->image,
+            'age_group' => $request->age_group,
+            'color' => $request->color,
+            'owner_id' => auth()->id(),
+        ]);
+
+        return redirect()->route('events.show', $evento->id);
     }
 
     /**
@@ -145,7 +196,16 @@ class EventoController extends Controller
     {
         $evento = Evento::findOrFail($request->id)->load(['owner:id,name', 'participants:id,name']);
         $participantsCount = $evento->participants->count();
-        return Inertia::render('Events/Show', ['event' => $evento, 'participantsCount' => $participantsCount, 'isSubscribed' => $evento->participants()->where('user_id', auth()->id())->exists()]);
+        $tier = $evento->tier;
+        return Inertia::render(
+            'Events/Show',
+            [
+                'event' => $evento,
+                'participantsCount' => $participantsCount,
+                'isSubscribed' => $evento->participants()->where('user_id', auth()->id())->exists(),
+                'tier' => $tier
+            ]
+        );
     }
 
     /**

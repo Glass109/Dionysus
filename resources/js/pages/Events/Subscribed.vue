@@ -6,12 +6,14 @@ import EventShowcaseBanner from "@/components/EventShowcaseBanner.vue";
 import {computed} from 'vue';
 
 const props = defineProps<{
-    events: Array<Event>
+    events: {
+        data: Array<Event>
+    }
 }>()
 
 // Create a computed property to add staggered delay for each event
 const eventsWithDelay = computed(() => {
-    return props.events.map((event, index) => ({
+    return props.events.data.map((event, index) => ({
         ...event,
         delay: `${index * 150}ms` // 150ms delay between each item
     }));

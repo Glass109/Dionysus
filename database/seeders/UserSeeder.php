@@ -14,8 +14,9 @@ class UserSeeder extends Seeder
             'name' => 'Raúl Dondé',
             'email' => 'glas109@gmail.com',
             'password' => Hash::make('password'),
+            'subscription_tier' => 'PLATINUM',
         ]);
 
-        User::factory()->count(2)->create();
+        User::factory()->count(19)->create();
     }
 }

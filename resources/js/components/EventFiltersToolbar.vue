@@ -20,7 +20,8 @@ const localFilters = ref<EventFilters>({
     start_date: props.filters.start_date,
     end_date: props.filters.end_date,
     sort_by: props.filters.sort_by,
-    sort_direction: props.filters.sort_direction
+    sort_direction: props.filters.sort_direction,
+    min_tier: props.filters.min_tier
 });
 
 // For the price slider
@@ -86,7 +87,8 @@ function resetFilters() {
         start_date: null,
         end_date: null,
         sort_by: 'created_at',
-        sort_direction: 'desc'
+        sort_direction: 'desc',
+        min_tier: ''
     };
 
     // Reset slider values
@@ -133,10 +135,24 @@ function resetFilters() {
                 <select
                     v-model="localFilters.age_group"
                 >
-                    <option :value="null" selected>Seleccionar grupo de edad</option>
+                    <option :value="null">Seleccionar grupo de edad</option>
                     <option v-for="option in ageGroupOptions" :key="option.value" :value="option.value">
                         {{ option.label }}
                     </option>
+                </select>
+            </div>
+            <!-- Tier Filter -->
+            <div>
+                <Label class="mb-1">Tier mínimo</Label>
+                <select
+                    v-model="localFilters.min_tier"
+                    @change="applyFilters"
+                >
+                    <option :value="null">Cualquier tier</option>
+                    <option value="BRONZE">Bronze</option>
+                    <option value="SILVER">Silver</option>
+                    <option value="GOLD">Gold</option>
+                    <option value="PLATINUM">Platinum</option>
                 </select>
             </div>
 
@@ -172,7 +188,7 @@ function resetFilters() {
             </div>
         </div>
 
-
+        <!-- Reset and Apply Filters Buttons -->
         <div class="mt-4 flex justify-end space-x-2">
             <Button
                 variant="secondary"
@@ -193,5 +209,23 @@ function resetFilters() {
     transition: all 0.3s ease;
 }
 
+.PLATINUM {
+    --tier-color: linear-gradient(135deg, #e5e4e2 0%, #b4b4b4 50%, #e5e4e2 100%);
+}
 
+.GOLD {
+    --tier-color: linear-gradient(135deg, #ffd700 0%, #b8860b 50%, #ffd700 100%);
+}
+
+.SILVER {
+    --tier-color: linear-gradient(135deg, #c0c0c0 0%, #808080 50%, #c0c0c0 100%);
+}
+
+.BRONZE {
+    --tier-color: linear-gradient(135deg, #cd7f32 0%, #a0522d 50%, #cd7f32 100%);
+}
+
+.STANDARD {
+    --tier-color: linear-gradient(135deg, #ffffff 0%, #f0f0f0 50%, #ffffff 100%);
+}
 </style>
