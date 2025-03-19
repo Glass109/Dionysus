@@ -10,6 +10,16 @@ import Card from '@/components/ui/card/Card.vue';
 
 const currentStep = ref(1);
 const totalSteps = 4;
+const imagePreview = ref<string | null>(null);
+const fileInput = ref<HTMLInputElement | null>(null);
+
+// Imágenes para cada paso
+const stepImages: Record<number, string> = {
+    1: '/images/Events/Create/create-event-1.jpg',
+    2: '/images/Events/Create/create-event-2.jpg',
+    3: '/images/Events/Create/create-event-3.jpg',
+    4: '/images/Events/Create/create-event-4.jpg'
+};
 
 interface FormData {
     name: string;
@@ -20,9 +30,10 @@ interface FormData {
     location_name: string;
     location_address: string;
     location_url: string;
-    image: string;
+    image: File | null;
     age_group: 'all' | 'kids' | 'teens' | 'young' | 'adults' | 'middle' | 'seniors' | 'other';
     color: string;
+    [key: string]: string | number | File | null | undefined;
 }
 
 const form = useForm<FormData>({
@@ -34,7 +45,7 @@ const form = useForm<FormData>({
     location_name: '',
     location_address: '',
     location_url: '',
-    image: '',
+    image: null,
     age_group: 'all',
     color: 'hsl(var(--primary))', // Color por defecto usando el tema
 });
@@ -88,8 +99,7 @@ const previousStep = () => {
     }
 };
 
-const handleSubmit = (e: Event) => {
-    e.preventDefault();
+const handleSubmit = () => {
     if (currentStep.value === totalSteps) {
         submit();
     } else {
@@ -97,16 +107,40 @@ const handleSubmit = (e: Event) => {
     }
 };
 
-const submit = () => {
-    // Asegurarse de que los valores numéricos sean números
-    const formData = {
-        ...form,
-        price: Number(form.price) || 0, // Asegurar que siempre sea un número
-        capacity: Number(form.capacity) || 1
-    };
+const handleImageUpload = (event: InputEvent) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    
+    if (file) {
+        form.image = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imagePreview.value = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+    }
+};
 
-    // Actualizar el formulario con los datos procesados
-    Object.assign(form, formData);
+const openFileInput = () => {
+    fileInput.value?.click();
+};
+
+const submit = () => {
+    const formData = new FormData();
+    
+    Object.entries(form.data()).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+            if (key === 'price') {
+                formData.append(key, String(Number(value) || 0));
+            } else if (key === 'capacity') {
+                formData.append(key, String(Number(value) || 1));
+            } else if (value instanceof File) {
+                formData.append(key, value);
+            } else {
+                formData.append(key, String(value));
+            }
+        }
+    });
 
     // Enviar el formulario
     form.post(route('events.store'), {
@@ -119,9 +153,18 @@ const submit = () => {
 
 <template>
     <Head title="Crear Evento" />
-    <AppLayout>
-        <div class="max-w-5xl mx-auto p-6">
-            <Card class="p-6">
+    <AppLayout class="relative">
+        <!-- Fondo con imagen -->
+        <div class="absolute inset-0">
+            <img 
+                :src="stepImages[currentStep]"
+                :alt="`Fondo paso ${currentStep}`"
+                class="w-full h-full object-cover"
+            />
+        </div>
+
+        <div class="relative h-full flex items-center justify-center p-6">
+            <Card class="w-full max-w-4xl backdrop-blur p-6 shadow-xl">
                 <div class="mb-8">
                     <h1 class="text-3xl font-bold text-foreground">Crear Nuevo Evento</h1>
                     <p class="text-muted-foreground">Complete los siguientes pasos para crear su evento</p>
@@ -257,12 +300,41 @@ const submit = () => {
                     <div v-if="currentStep === 4" class="space-y-6">
                         <div class="space-y-2">
                             <Label for="image">Imagen del Evento</Label>
-                            <Input
-                                id="image"
-                                v-model="form.image"
-                                type="text"
-                                required
-                            />
+                            <div class="flex flex-col items-center gap-4">
+                                <div 
+                                    class="w-full h-48 border-2 border-dashed border-muted rounded-lg flex items-center justify-center cursor-pointer hover:border-primary transition-colors"
+                                    @click="openFileInput"
+                                >
+                                    <div v-if="!imagePreview" class="text-center p-4">
+                                        <svg class="mx-auto h-12 w-12 text-muted-foreground" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <p class="mt-1 text-sm text-muted-foreground">Haz clic para subir una imagen o arrastra y suelta aquí</p>
+                                        <p class="text-xs text-muted-foreground">PNG, JPG, GIF hasta 2MB</p>
+                                    </div>
+                                    <img 
+                                        v-else 
+                                        :src="imagePreview" 
+                                        class="w-full h-full object-contain"
+                                        alt="Vista previa de la imagen"
+                                    />
+                                </div>
+                                <input
+                                    ref="fileInput"
+                                    type="file"
+                                    :class="{ hidden: true }"
+                                    accept="image/*"
+                                    @change="handleImageUpload"
+                                />
+                                <Button 
+                                    v-if="imagePreview"
+                                    type="button"
+                                    variant="outline"
+                                    @click="() => { form.image = null; imagePreview = null; }"
+                                >
+                                    Eliminar imagen
+                                </Button>
+                            </div>
                         </div>
                         <div class="space-y-2">
                             <Label for="age_group">Grupo de Edad</Label>
@@ -294,7 +366,7 @@ const submit = () => {
                         </div>
                     </div>
 
-                    <!-- Botones de Navegación -->
+                    <!-- Botones de navegación -->
                     <div class="flex justify-between mt-8">
                         <Button
                             type="button"
@@ -306,7 +378,7 @@ const submit = () => {
                         </Button>
                         <Button
                             type="submit"
-                            :disabled="form.processing || (currentStep === totalSteps && !validateCurrentStep())"
+                            :disabled="!validateCurrentStep()"
                         >
                             {{ currentStep === totalSteps ? 'Crear Evento' : 'Siguiente' }}
                         </Button>

@@ -21,11 +21,11 @@ const eventsWithDelay = computed(() => {
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Eventos',
-        href: '/dashboard/events/explore',
+        href: '/events/explore',
     },
     {
         title: 'Mis Eventos',
-        href: 'dashboard/events/owned',
+        href: '/events/owned',
     }
 ];
 </script>
@@ -43,7 +43,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <Button
                     as="a"
                     class="hover:scale-105 transition-all shadow-md"
-                    href="/dashboard/events/create"
+                    href="/events/create"
                 >
                     <CalendarPlus class="mr-2"/>
                     Crear Nuevo Evento
@@ -79,7 +79,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <Button
                     as="a"
                     class="hover:scale-105 transition-all shadow-md"
-                    href="/dashboard/events/create"
+                    href="/events/create"
                     size="lg"
                 >
                     <PlusCircle class="mr-2"/>

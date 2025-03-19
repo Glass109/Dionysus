@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('evento_id')->constrained()->onDelete('cascade');
             $table->enum('tier', ['PLATINUM', 'GOLD', 'SILVER', 'BRONZE', 'STANDARD'])->default('STANDARD');
-            $table->integer('organizer_rating_score');
-            $table->integer('participation_score');
-            $table->integer('subscription_score');
-            $table->integer('total_score');
+            $table->integer('organizer_rating_score')->default(0);
+            $table->integer('participation_score')->default(0);
+            $table->integer('subscription_score')->default(0);
+            $table->integer('total_score')->default(0);
             $table->timestamps();
         });
     }

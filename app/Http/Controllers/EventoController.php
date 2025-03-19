@@ -166,10 +166,16 @@ class EventoController extends Controller
             'location_name' => 'required|string|max:255',
             'location_address' => 'required|string',
             'location_url' => 'nullable|url',
-            'image' => 'required|string',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'age_group' => 'required|string',
             'color' => 'required|string',
         ]);
+
+        // Manejar la carga de la imagen
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('event-images', 'public');
+        }
 
         $evento = Evento::create([
             'name' => $request->name,
@@ -180,10 +186,14 @@ class EventoController extends Controller
             'location_name' => $request->location_name,
             'location_address' => $request->location_address,
             'location_url' => $request->location_url,
-            'image' => $request->image,
+            'image' => $imagePath ? '/storage/' . $imagePath : null,
             'age_group' => $request->age_group,
             'color' => $request->color,
             'owner_id' => auth()->id(),
+        ]);
+
+        $evento->tier()->create([
+            'tier' => 'STANDARD',
         ]);
 
         return redirect()->route('events.show', $evento->id);
