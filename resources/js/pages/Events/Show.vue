@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import AppLayout from "@/layouts/AppLayout.vue";
-import {Head, useForm} from '@inertiajs/vue3' // Added useForm
-import type {BreadcrumbItem, Event} from "@/types";
-import {computed, ref} from "vue";
+import { Head, useForm, router } from '@inertiajs/vue3'
+import type { BreadcrumbItem, Event, PageProps } from "@/types";
+import { computed, ref } from "vue";
 import PlaceholderPattern from "@/components/PlaceholderPattern.vue";
-import {Button} from "@/components/ui/button";
-import {spanishMapping} from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { spanishMapping } from "@/lib/utils";
 import {
     Calendar,
     Clock1Icon,
@@ -18,7 +18,9 @@ import {
     UserRoundPlusIcon,
     UsersIcon
 } from "lucide-vue-next";
-import axios from 'axios'; // Import axios for API requests
+import axios from 'axios';
+import CancelEventDialog from "@/components/CancelEventDialog.vue";
+import { usePage } from '@inertiajs/vue3';
 
 const props = defineProps<{
     event: Event
@@ -29,6 +31,7 @@ const imageLoaded = ref(false);
 const subscribed = ref(props.isSubscribed);
 const participantsCounter = ref(props.participantsCount);
 const isLoading = ref(false);
+const page = usePage<PageProps>();
 
 // Form for subscription
 const subscribeForm = useForm({
@@ -101,90 +104,87 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <Head title="Show"/>
-        <div class="grid grid-cols-1 p-4 relative"
-             :style="{'--event-color': event.color}">
+
+        <Head title="Show" />
+        <div class="grid grid-cols-1 p-4 relative" :style="{ '--event-color': event.color }">
             <!-- Decorative elements -->
             <div class="absolute -z-10 top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
             <div class="absolute -z-10 bottom-20 left-20 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"></div>
 
             <div class="relative h-[30em] shadow image-container">
-                <PlaceholderPattern v-show="!imageLoaded"
-                                    class="absolute inset-0 animate-pulse rounded-2xl"></PlaceholderPattern>
-                <img
-                    :src="event.image"
-                    alt="Imagen del evento"
-                    @load="imageLoaded = true"
-                    :class="{ 'opacity-0': !imageLoaded }"
-                    class="transition-opacity duration-300"
-                >
+                <PlaceholderPattern v-show="!imageLoaded" class="absolute inset-0 animate-pulse rounded-2xl">
+                </PlaceholderPattern>
+                <img :src="event.image" alt="Imagen del evento" @load="imageLoaded = true"
+                    :class="{ 'opacity-0': !imageLoaded }" class="transition-opacity duration-300">
             </div>
 
             <div class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm -mt-6 rounded-[1rem] p-8 shadow-lg">
-                <h1 class="text-3xl font-bold mt-4">{{ event.name }}</h1>
+                <h1 :class="{ 'text-red-500 animate-pulse': event.status == 'CANCELLED' }"
+                    class="text-3xl font-bold mt-4">{{ event.name }} {{ event.status == 'ACTIVE' ? '' : ' (Cancelado)'
+                    }}</h1>
                 <p class="text-lg">{{ event.description }}</p>
                 <hr class="opacity-20 my-4">
 
                 <div class="details-grid">
                     <div class="sl">
-                        <UserRoundPen class="event-color"/>
+                        <UserRoundPen class="event-color" />
                         <span>Organizado por:</span>
                         <Button variant="ghost" class="text-md font-bold underline">{{ event.owner?.name }}</Button>
                     </div>
                     <div class="sl">
-                        <Calendar class="event-color"/>
+                        <Calendar class="event-color" />
                         <span>Fecha:</span>
                         <span class="font-bold">{{ formattedStartDate }}</span>
                     </div>
                     <div class="sl">
-                        <User2 class="event-color"/>
+                        <User2 class="event-color" />
                         <span>Dirigido a:</span>
                         <span class="font-bold">{{ spanishMapping[event.age_group] }}</span>
                     </div>
                     <div class="sl">
-                        <MapIcon class="event-color"/>
+                        <MapIcon class="event-color" />
                         <span>Lugar:</span>
-                      <Button :href="event.location_url" as="a" class="hover:scale-105 transition-transform"
-                              variant="link"
-                                style="color: var(--event-color)">
+                        <Button :href="event.location_url" as="a" class="hover:scale-105 transition-transform"
+                            variant="link" style="color: var(--event-color)">
                             {{ event.location_name }}
-                            <ExternalLinkIcon/>
+                            <ExternalLinkIcon />
                         </Button>
                     </div>
                     <div class="sl">
-                        <Clock1Icon class="event-color"/>
+                        <Clock1Icon class="event-color" />
                         <span>Horario:</span>
                         <span class="font-bold">
                             {{ timeOptions.format(new Date(event.start)) }}
                         </span>
                     </div>
                     <div class="sl">
-                        <UsersIcon class="event-color"/>
+                        <UsersIcon class="event-color" />
                         <span>Participantes:</span>
                         <span class="font-bold">{{
-                                participantsCounter > 0 ? participantsCounter : '-'
-                            }} / {{ event.capacity }}</span>
+                            participantsCounter > 0 ? participantsCounter : '-'
+                        }} / {{ event.capacity }}</span>
                     </div>
-                    <div class="col-span-2 flex justify-end items-center gap-4 mt-8">
+                    <div class="col-span-2 flex justify-end items-center gap-4 mt-8"
+                        v-if="event.status !== 'CANCELLED'">
                         <span>Precio: ${{ event.price }}</span>
                         <Button class="group shadow-lg hover:scale-110 hover:brightness-105 transition-all w-48"
-                                size="lg" variant="secondary">
-                            <StarIcon class="group-hover:text-yellow-500 group-hover:animate-bounce"/>
+                            size="lg" variant="secondary">
+                            <StarIcon class="group-hover:text-yellow-500 group-hover:animate-bounce" />
                             Me interesa
                         </Button>
                         <!-- Participation button that changes based on subscription status -->
-                        <Button
-                            class="group shadow-lg hover:scale-110 hover:brightness-105 transition-all w-48"
-                            size="lg"
-                            :variant="subscribed ? 'outline' : 'default'"
-                            @click="toggleSubscription"
-                            :disabled="isLoading"
-                        >
-                            <UserRoundCheckIcon v-if="subscribed" class="text-green-500"/>
-                            <UserRoundPlusIcon v-else class="group-hover:animate-bounce"/>
+                        <Button class="group shadow-lg hover:scale-110 hover:brightness-105 transition-all w-48"
+                            size="lg" :variant="subscribed ? 'outline' : 'default'" @click="toggleSubscription"
+                            :disabled="isLoading">
+                            <UserRoundCheckIcon v-if="subscribed" class="text-green-500" />
+                            <UserRoundPlusIcon v-else class="group-hover:animate-bounce" />
                             <span class="ml-2">{{ subscribed ? 'Cancelar participación' : 'Participar' }}</span>
                             <span v-if="isLoading" class="ml-2 animate-spin">⟳</span>
                         </Button>
+                        <CancelEventDialog
+                            v-if="event.owner_id === page.props.auth.user.id"
+                            :event-id="event.id" :is-owner="event.owner_id === page.props.auth.user.id"
+                            @event-cancelled="router.visit(route('events.show', event.id))" />
                     </div>
                 </div>
             </div>

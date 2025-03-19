@@ -27,6 +27,8 @@ Route::post('/events/subscribe', [\App\Http\Controllers\EventoController::class,
     ->middleware(['auth', 'verified'])->name('events.handleSubscribe');
 Route::post('/events/unsubscribe', [\App\Http\Controllers\EventoController::class, 'handleUnsubscribe'])
     ->middleware(['auth', 'verified'])->name('events.handleUnsubscribe');
+Route::post('/events/cancel', [\App\Http\Controllers\EventoController::class, 'handleCancel'])
+    ->middleware(['auth', 'verified'])->name('events.handleCancel');
 Route::post('/events/store', [\App\Http\Controllers\EventoController::class, 'store'])
     ->middleware(['auth', 'verified'])->name('events.store');
 

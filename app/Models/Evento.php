@@ -34,6 +34,10 @@ class Evento extends Model
         'color',
         'is_public',
         'age_group',
+        'status',
+        'cancellation_reason',
+        'cancelled_by',
+        'cancelled_at'
     ];
 
     /**

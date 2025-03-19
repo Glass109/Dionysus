@@ -17,6 +17,8 @@ class EventoController extends Controller
         'PLATINUM' => 4
     ];
 
+    protected $imageService;
+
     public function handleSubscribe(Request $request)
     {
         try {
@@ -102,7 +104,8 @@ class EventoController extends Controller
 
         // Apply sorting
         $query->orderBy($request->input('sort_by', 'created_at'), $request->input('sort_direction', 'desc'));
-
+        // Show only active events
+        $query->where('status', 'ACTIVE');
         return $query;
     }
 
@@ -172,9 +175,9 @@ class EventoController extends Controller
         ]);
 
         // Manejar la carga de la imagen
-        $imagePath = null;
+        $imagePaths = [];
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('event-images', 'public');
+            $imagePaths = $this->imageService->optimizeAndStore($request->file('image'), 'event-images');
         }
 
         $evento = Evento::create([
@@ -186,7 +189,10 @@ class EventoController extends Controller
             'location_name' => $request->location_name,
             'location_address' => $request->location_address,
             'location_url' => $request->location_url,
-            'image' => $imagePath ? '/storage/' . $imagePath : null,
+            'image' => $imagePaths['medium'] ? '/storage/' . $imagePaths['medium'] : null,
+            'image_thumbnail' => $imagePaths['thumbnail'] ? '/storage/' . $imagePaths['thumbnail'] : null,
+            'image_large' => $imagePaths['large'] ? '/storage/' . $imagePaths['large'] : null,
+            'image_webp' => $imagePaths['medium_webp'] ? '/storage/' . $imagePaths['medium_webp'] : null,
             'age_group' => $request->age_group,
             'color' => $request->color,
             'owner_id' => auth()->id(),
@@ -241,5 +247,39 @@ class EventoController extends Controller
     public function destroy(Evento $evento)
     {
         //
+    }
+
+    public function handleCancel(Request $request)
+    {
+        try {
+            $evento = Evento::findOrFail($request->evento_id);
+            
+            // Verificar si el usuario es el dueño del evento
+            if ($evento->owner_id === auth()->id()) {
+                // Si es el dueño, cancelar el evento completamente
+                $evento->update([
+                    'status' => 'CANCELLED',
+                    'cancellation_reason' => $request->reason,
+                    'cancelled_by' => auth()->id(),
+                    'cancelled_at' => now()
+                ]);
+
+                // Aquí podrías agregar lógica para notificar a los participantes
+                return response()->json(['message' => 'Evento cancelado exitosamente']);
+            } else {
+                // Si es un participante, solo cancelar su participación
+                if (!$evento->participants()->where('user_id', auth()->id())->exists()) {
+                    return response()->json(['message' => 'No estás inscrito en este evento'], 422);
+                }
+
+                $evento->participants()->detach(auth()->id());
+                
+                // Registrar la razón de cancelación en una tabla pivote o log si es necesario
+                
+                return response()->json(['message' => 'Has cancelado tu participación en el evento']);
+            }
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Error al cancelar el evento'], 500);
+        }
     }
 }

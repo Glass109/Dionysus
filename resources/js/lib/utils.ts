@@ -27,13 +27,13 @@ export function ageGroupToRGBAColor(age_group: string): string {
     }
 }
 
-export const spanishMapping = {
-    'all': 'Todos',
-    'kids': 'Niños',
-    'teens': 'Adolescentes',
-    'young': 'Adultos jóvenes',
-    'adults': 'Adultos',
-    'middle': 'Adultos de mediana edad',
-    'seniors': 'Adultos mayores',
-    'other': 'Otros',
+export const spanishMapping: { [key: string]: string } = {
+    all: 'Todos',
+    kids: 'Niños',
+    teens: 'Adolescentes',
+    young: 'Jóvenes',
+    adults: 'Adultos',
+    middle: 'Mediana edad',
+    seniors: 'Adultos mayores',
+    other: 'Otro'
 };
