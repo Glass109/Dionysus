@@ -42,13 +42,19 @@ Puro SQLite pa, no tienes que configurar permisos de la DB
 ```bash
 php artisan migrate --seed
 ```
-
+PD: Esto crea el usuario Raúl Dondé que usa las siguientes credenciales, ahorrandote el tener que registrar un usuario 
+- Correo electrónico: glass109@gmail.com
+- Contraseña: password.
 ### 5. Configura el storage para guardar imágenes
+
+```bash
+php artisan storage:link
+```
 
 Este comando crea un enlace simbólico entre la carpeta `storage/app/public` y `public/storage`. Esto es necesario para que las imágenes subidas por los usuarios (como las fotos de los eventos) sean accesibles públicamente a través de la web. Sin este enlace, las imágenes subidas no serían visibles en el sitio.
 
 
-### 6. ¡A correr el proyecto! 🚀
+### 6. Corre el proyecto
 
 Abre dos terminales diferentes y ejecuta:
 
@@ -62,6 +68,7 @@ En la segunda:
 ```bash
 npm run dev
 ```
+
 ### 7. ¡IMPORTANTE! ⚠️
 
 No cierres ninguna de las dos terminales mientras estés trabajando en el proyecto. Si cierras la terminal de `php artisan serve`, el servidor local se detendrá y no podrás acceder a la aplicación. Si cierres la terminal de `npm run dev`, los cambios que hagas en el frontend no se compilarán automáticamente.
