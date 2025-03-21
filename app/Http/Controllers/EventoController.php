@@ -17,8 +17,6 @@ class EventoController extends Controller
         'PLATINUM' => 4
     ];
 
-    protected $imageService;
-
     public function handleSubscribe(Request $request)
     {
         try {
@@ -175,9 +173,9 @@ class EventoController extends Controller
         ]);
 
         // Manejar la carga de la imagen
-        $imagePaths = [];
+        $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePaths = $this->imageService->optimizeAndStore($request->file('image'), 'event-images');
+            $imagePath = $request->file('image')->store('event-images', 'public');
         }
 
         $evento = Evento::create([
