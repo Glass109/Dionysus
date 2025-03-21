@@ -7,14 +7,13 @@ Route::get('/', function () {
     return redirect('/dashboard');
 })->name('home');
 
-
 Route::get('/dashboard', function () {
     return redirect('/events/explore');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/profile', function () {
     return Inertia::render('Profile/Index');
-})->middleware(['auth', 'verified'])->name('profile');
+})->middleware(['auth', 'verified'])->name('profile.show');
 
 Route::get('/events/owned', [\App\Http\Controllers\EventoController::class, 'owned'])->middleware(['auth', 'verified'])->name('events.owned');
 Route::get('/events/explore', [\App\Http\Controllers\EventoController::class, 'index'])->middleware(['auth', 'verified'])->name('events.subscribed');

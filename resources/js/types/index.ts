@@ -53,4 +53,5 @@ export interface EventFilters {
     sort_by: string;
     sort_direction: 'asc' | 'desc';
     min_tier: string;
+    status: 'ACTIVE' | 'CANCELLED' | 'EXPIRED';
 } 

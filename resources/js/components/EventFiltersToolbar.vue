@@ -6,22 +6,29 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Slider} from "@/components/ui/slider";
-
 const props = defineProps<{
     filters: EventFilters;
     route: string; // Current route to refresh with filters
 }>();
+
+// Función para formatear la fecha
+function formatDate(dateString: string | null): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+}
 
 // Create a reactive copy of the filters
 const localFilters = ref<EventFilters>({
     age_group: props.filters.age_group,
     min_price: props.filters.min_price,
     max_price: props.filters.max_price,
-    start_date: props.filters.start_date,
-    end_date: props.filters.end_date,
+    start_date: formatDate(props.filters.start_date),
+    end_date: formatDate(props.filters.end_date),
     sort_by: props.filters.sort_by,
     sort_direction: props.filters.sort_direction,
-    min_tier: props.filters.min_tier
+    min_tier: props.filters.min_tier,
+    status: props.filters.status || 'ACTIVE'
 });
 
 // For the price slider
@@ -88,7 +95,8 @@ function resetFilters() {
         end_date: null,
         sort_by: 'created_at',
         sort_direction: 'desc',
-        min_tier: ''
+        min_tier: '',
+        status: 'ACTIVE'
     };
 
     // Reset slider values
@@ -99,7 +107,7 @@ function resetFilters() {
 </script>
 
 <template>
-    <div class="bg-white shadow rounded-lg p-4 mb-6">
+    <div class="bg-card shadow rounded-lg p-4 mb-6">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-medium text-muted-foreground">Filtrar eventos</h2>
             <div class="flex items-center space-x-2">
@@ -128,7 +136,7 @@ function resetFilters() {
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
             <!-- Age Group Filter -->
             <div>
                 <Label class="mb-1">Grupo de edad</Label>

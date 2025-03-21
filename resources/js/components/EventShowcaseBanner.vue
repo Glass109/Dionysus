@@ -10,7 +10,7 @@ const props = defineProps<{
 }>();
 
 const badgeColorBasedOnAgeGroup = ageGroupToRGBAColor(props.event.age_group);
-
+const isExpired = computed(() => new Date(props.event.start) < new Date());
 function onClick(): void {
     router.visit(route('events.show', props.event.id));
 }
@@ -19,11 +19,13 @@ const isHovered = ref(false)
 
 </script>
 
+
 <template>
     <div @click="onClick" @mouseenter="isHovered = true" @mouseleave="isHovered = false" class="eventshowcasecontainer"
         :style="{
             '--event-color': event.color || 'hsl(150 55% 45%)',
         }">
+        <div v-if="isExpired" class="expired-banner">EXPIRADO</div>
         <div :style="{ '--age-color': badgeColorBasedOnAgeGroup }" class="badge">{{ spanishMapping[event.age_group] }}</div>
         <div class="tier-badge" :class="event.tier.tier">{{ event.tier.tier }}</div>
         <img :src="event.image" alt="Imagen de evento" />
@@ -69,7 +71,7 @@ h2 {
     border-radius: 0 0 0 1rem;
     font-weight: 700;
     font-size: 1rem;
-    z-index: 10;
+    z-index: 20;
 }
 
 .badge:hover {
@@ -89,7 +91,7 @@ h2 {
     border-radius: 0 1rem 1rem 0;
     font-weight: 700;
     font-size: 1rem;
-    z-index: 10;
+    z-index: 20;
 }
 .eventshowcasecontainer:hover .tier-badge {
     opacity: 1;
@@ -153,12 +155,17 @@ img {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.8), transparent 2% 70%, var(--event-color) 98%, rgba(211, 211, 211, 0.8) 100%);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.8), transparent 2% 70%, var(--event-color));
     border-radius: 1rem;
     transition: opacity 0.3s ease-out;
     z-index: 11;
+    backdrop-filter: blur(0px);
+    transition: backdrop-filter 0.3s ease-out;
 }
 
+.eventshowcasecontainer:hover::after {
+    backdrop-filter: blur(4px);
+}
 
 .v-enter-from,
 .v-leave-to {
@@ -169,5 +176,22 @@ img {
 .v-enter-active,
 .v-leave-active {
     transition: all 0.3s ease-out;
-}   
+}
+
+.expired-banner {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background-color: rgba(255, 0, 0, 0.8);
+    color: white;
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    z-index: 20;
+    writing-mode: vertical-lr;
+    text-orientation: upright;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 </style>

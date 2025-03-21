@@ -6,7 +6,8 @@ import {Head, usePage, Link} from '@inertiajs/vue3';
 import EventShowcaseBanner from "@/components/EventShowcaseBanner.vue";
 import {computed, onMounted, ref} from "vue";
 import EventFiltersToolbar from "@/components/EventFiltersToolbar.vue";
-
+import {Filter} from "lucide-vue-next";
+import {Button} from "@/components/ui/button";
 defineProps<{
     events: {
         data: Array<Event>;
@@ -58,7 +59,6 @@ const translations = [
 const currentTranslation = ref(0);
 
 const displayedTranslation = computed(() => translations[currentTranslation.value]);
-
 function cycleTranslation() {
     currentTranslation.value = (currentTranslation.value + 1) % translations.length;
 }
@@ -72,6 +72,8 @@ onMounted(() => {
 const page = usePage();
 const currentRoute = computed(() => page.url);
 
+const dialog = ref<HTMLDialogElement | null>(null);
+
 </script>
 
 <template>
@@ -82,7 +84,25 @@ const currentRoute = computed(() => page.url);
                 <h1 class="title" :key="displayedTranslation">{{ displayedTranslation }}</h1>
             </Transition>
         </div>
-        <EventFiltersToolbar :filters="filters" :route="currentRoute"/>
+        <Button @click="dialog?.showModal()" class="md:hidden w-full mb-4">
+            <Filter class="mr-2 h-4 w-4" />
+            Filtros
+        </Button>
+        <dialog ref="dialog" class="rounded-lg p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">Filtros</h2>
+                <button @click="dialog?.close()" class="text-muted-foreground hover:text-foreground">
+                    ✕
+                </button>
+            </div>
+            <p class="text-sm text-muted-foreground mb-4">
+                Ajusta los filtros para encontrar los eventos que buscas
+            </p>
+            <div class="py-4">
+                <EventFiltersToolbar :filters="filters" :route="currentRoute" />
+            </div>
+        </dialog>
+        <EventFiltersToolbar class="hidden md:block" :filters="filters" :route="currentRoute"/>
         <Transition appear>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 items-center p-4">
                 <EventShowcaseBanner v-for="event in events.data" :event="event"/>
@@ -97,14 +117,14 @@ const currentRoute = computed(() => page.url);
                     :href="link.url"
                     class="px-4 py-2 rounded"
                     :class="{
-                        'bg-primary text-white': link.active,
-                        'bg-gray-200 hover:bg-gray-300': !link.active
+                        'bg-primary text-primary-foreground': link.active,
+                        'bg-muted hover:bg-muted/80': !link.active
                     }"
                     v-html="link.label"
                 />
                 <span
                     v-else
-                    class="px-4 py-2 text-gray-400"
+                    class="px-4 py-2 text-muted-foreground"
                     v-html="link.label"
                 />
             </template>
@@ -114,23 +134,15 @@ const currentRoute = computed(() => page.url);
 
 <style scoped>
 .title {
+    max-height: 8rem;
+    overflow: hidden;
     font-size: 4rem;
     font-weight: 600;
     background-clip: text;
     color: transparent;
-    background-image: linear-gradient(90deg, #ff6b00, #ff9900, #ffcc00);
+    background-image: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary-foreground)));
     background-size: 200% 200%;
     text-align: center;
-    animation: fire 3s ease backwards infinite;
-}
-
-@keyframes fire {
-    0% {
-        background-position: 400%;
-    }
-    100% {
-        background-position: 0;
-    }
 }
 
 .v-enter-active,

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Evento;
@@ -11,10 +10,10 @@ class EventoController extends Controller
 {
     private const TIER_RANKS = [
         'STANDARD' => 0,
-        'BRONZE' => 1,
-        'SILVER' => 2,
-        'GOLD' => 3,
-        'PLATINUM' => 4
+        'BRONZE'   => 1,
+        'SILVER'   => 2,
+        'GOLD'     => 3,
+        'PLATINUM' => 4,
     ];
 
     public function handleSubscribe(Request $request)
@@ -41,7 +40,7 @@ class EventoController extends Controller
             $evento = Evento::findOrFail($request->evento_id);
 
             // Check if user is subscribed
-            if (!$evento->participants()->where('user_id', auth()->id())->exists()) {
+            if (! $evento->participants()->where('user_id', auth()->id())->exists()) {
                 return response()->json(['message' => 'No estás suscrito a este evento'], 422);
             }
 
@@ -55,12 +54,12 @@ class EventoController extends Controller
 
     public function index(Request $request)
     {
-        $query = Evento::query()->with('tier');
-        $query = $this->applyFilters($query, $request);
+        $query  = Evento::query()->with('tier');
+        $query  = $this->applyFilters($query, $request);
         $events = $query->paginate(15);
         return Inertia::render('Events/Explore', [
-            'events' => $events,
-            'filters' => $this->getFiltersArray($request)
+            'events'  => $events,
+            'filters' => $this->getFiltersArray($request),
         ]);
     }
 
@@ -81,18 +80,18 @@ class EventoController extends Controller
         }
 
         // Filter by time range
+
         if ($request->has('start_date') && $request->start_date) {
             $query->where('start', '>=', $request->start_date);
+        } else {
+            $query->where('start', '>=', now());
         }
 
-        if ($request->has('end_date') && $request->end_date) {
-            $query->where('start', '<=', $request->end_date);
-        }
 
         // Filter by minimum tier
         if ($request->has('min_tier') && $request->min_tier) {
             $minTierRank = self::TIER_RANKS[$request->min_tier];
-            $query->whereHas('tier', function($query) use ($minTierRank) {
+            $query->whereHas('tier', function ($query) use ($minTierRank) {
                 $query->whereIn('tier', array_filter(
                     array_keys(self::TIER_RANKS),
                     fn($tier) => self::TIER_RANKS[$tier] >= $minTierRank
@@ -100,33 +99,48 @@ class EventoController extends Controller
             });
         }
 
+
+        
+
+        // Filter by search term
+        if ($request->has('search') && $request->search) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhere('description', 'like', "%{$searchTerm}%")
+                    ->orWhere('location_name', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        
         // Apply sorting
         $query->orderBy($request->input('sort_by', 'created_at'), $request->input('sort_direction', 'desc'));
-        // Show only active events
-        $query->where('status', 'ACTIVE');
+
         return $query;
     }
 
     private function getFiltersArray(Request $request): array
     {
         return [
-            'age_group' => $request->age_group ?: null,
-            'min_price' => is_numeric($request->min_price) ? (float)$request->min_price : null,
-            'max_price' => is_numeric($request->max_price) ? (float)$request->max_price : null,
-            'start_date' => $request->start_date ?: null,
-            'end_date' => $request->end_date ?: null,
-            'sort_by' => $request->input('sort_by', 'created_at'),
+            'age_group'      => $request->age_group ?: null,
+            'min_price'      => is_numeric($request->min_price) ? (float) $request->min_price : null,
+            'max_price'      => is_numeric($request->max_price) ? (float) $request->max_price : null,
+            'start_date'     => $request->start_date ?: now(),
+            'sort_by'        => $request->input('sort_by', 'created_at'),
             'sort_direction' => in_array($request->input('sort_direction'), ['asc', 'desc'])
-                ? $request->input('sort_direction')
-                : 'desc',
-            'min_tier' => $request->min_tier ?: null,
+            ? $request->input('sort_direction')
+            : 'desc',
+            'min_tier'       => $request->min_tier ?: null,
+            'status'         => $request->status ?: null,
+            'search'         => $request->search ?: null,
+            
         ];
     }
 
     public function owned(Request $request)
     {
-        $query = Evento::where('owner_id', auth()->id())->with('tier');
-        $query = $this->applyFilters($query, $request);
+        $query  = Evento::where('owner_id', auth()->id())->with('tier');
+        $query  = $this->applyFilters($query, $request);
         $events = $query->get();
 
         return Inertia::render('Events/Owned', ['events' => $events, 'filters' => $this->getFiltersArray($request)]);
@@ -137,7 +151,7 @@ class EventoController extends Controller
         $query = Evento::whereHas('participants', function ($query) {
             $query->where('user_id', auth()->id());
         })->with('tier');
-        $query = $this->applyFilters($query, $request);
+        $query  = $this->applyFilters($query, $request);
         $events = $query->paginate(15);
 
         return Inertia::render('Events/Subscribed', ['events' => $events, 'filters' => $this->getFiltersArray($request)]);
@@ -159,17 +173,17 @@ class EventoController extends Controller
         \Log::info('Datos recibidos:', $request->all());
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'start' => 'required|date',
-            'price' => 'required|numeric|min:0',
-            'capacity' => 'required|integer|min:1',
-            'location_name' => 'required|string|max:255',
+            'name'             => 'required|string|max:255',
+            'description'      => 'required|string',
+            'start'            => 'required|date',
+            'price'            => 'required|numeric|min:0',
+            'capacity'         => 'required|integer|min:1',
+            'location_name'    => 'required|string|max:255',
             'location_address' => 'required|string',
-            'location_url' => 'nullable|url',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'age_group' => 'required|string',
-            'color' => 'required|string',
+            'location_url'     => 'nullable|url',
+            'image'            => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'age_group'        => 'required|string',
+            'color'            => 'required|string',
         ]);
 
         // Manejar la carga de la imagen
@@ -179,18 +193,18 @@ class EventoController extends Controller
         }
 
         $evento = Evento::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'start' => $request->start,
-            'price' => intval($request->input('price', 0)),
-            'capacity' => intval($request->input('capacity', 1)),
-            'location_name' => $request->location_name,
+            'name'             => $request->name,
+            'description'      => $request->description,
+            'start'            => $request->start,
+            'price'            => intval($request->input('price', 0)),
+            'capacity'         => intval($request->input('capacity', 1)),
+            'location_name'    => $request->location_name,
             'location_address' => $request->location_address,
-            'location_url' => $request->location_url,
-            'image' => $imagePath ? '/storage/' . $imagePath : null,
-            'age_group' => $request->age_group,
-            'color' => $request->color,
-            'owner_id' => auth()->id(),
+            'location_url'     => $request->location_url,
+            'image'            => $imagePath ? '/storage/' . $imagePath : null,
+            'age_group'        => $request->age_group,
+            'color'            => $request->color,
+            'owner_id'         => auth()->id(),
         ]);
 
         $evento->tier()->create([
@@ -205,16 +219,16 @@ class EventoController extends Controller
      */
     public function show(Request $request)
     {
-        $evento = Evento::findOrFail($request->id)->load(['owner:id,name', 'participants:id,name']);
+        $evento            = Evento::findOrFail($request->id)->load(['owner:id,name', 'participants:id,name']);
         $participantsCount = $evento->participants->count();
-        $tier = $evento->tier;
+        $tier              = $evento->tier;
         return Inertia::render(
             'Events/Show',
             [
-                'event' => $evento,
+                'event'             => $evento,
                 'participantsCount' => $participantsCount,
-                'isSubscribed' => $evento->participants()->where('user_id', auth()->id())->exists(),
-                'tier' => $tier
+                'isSubscribed'      => $evento->participants()->where('user_id', auth()->id())->exists(),
+                'tier'              => $tier,
             ]
         );
     }
@@ -226,7 +240,6 @@ class EventoController extends Controller
     {
         //
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -248,29 +261,29 @@ class EventoController extends Controller
     {
         try {
             $evento = Evento::findOrFail($request->evento_id);
-            
+
             // Verificar si el usuario es el dueño del evento
             if ($evento->owner_id === auth()->id()) {
                 // Si es el dueño, cancelar el evento completamente
                 $evento->update([
-                    'status' => 'CANCELLED',
+                    'status'              => 'CANCELLED',
                     'cancellation_reason' => $request->reason,
-                    'cancelled_by' => auth()->id(),
-                    'cancelled_at' => now()
+                    'cancelled_by'        => auth()->id(),
+                    'cancelled_at'        => now(),
                 ]);
 
                 // Aquí podrías agregar lógica para notificar a los participantes
                 return response()->json(['message' => 'Evento cancelado exitosamente']);
             } else {
                 // Si es un participante, solo cancelar su participación
-                if (!$evento->participants()->where('user_id', auth()->id())->exists()) {
+                if (! $evento->participants()->where('user_id', auth()->id())->exists()) {
                     return response()->json(['message' => 'No estás inscrito en este evento'], 422);
                 }
 
                 $evento->participants()->detach(auth()->id());
-                
+
                 // Registrar la razón de cancelación en una tabla pivote o log si es necesario
-                
+
                 return response()->json(['message' => 'Has cancelado tu participación en el evento']);
             }
         } catch (Exception $e) {
