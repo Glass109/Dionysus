@@ -84,7 +84,7 @@ const dialog = ref<HTMLDialogElement | null>(null);
                 <h1 class="title" :key="displayedTranslation">{{ displayedTranslation }}</h1>
             </Transition>
         </div>
-        <Button @click="dialog?.showModal()" class="md:hidden w-full mb-4">
+        <Button @click="dialog?.showModal()" variant="secondary" size="sm" class="md:hidden mx-auto">
             <Filter class="mr-2 h-4 w-4" />
             Filtros
         </Button>

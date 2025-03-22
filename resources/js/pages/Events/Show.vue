@@ -125,7 +125,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <p class="text-lg">{{ event.description }}</p>
                 <hr class="opacity-20 my-4">
 
-                <div class="details-grid">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 place-content-center mt-8;">
                     <div class="sl">
                         <UserRoundPen class="event-color" />
                         <span>Organizado por:</span>
@@ -164,7 +164,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             participantsCounter > 0 ? participantsCounter : '-'
                         }} / {{ event.capacity }}</span>
                     </div>
-                    <div class="col-span-2 flex justify-end items-center gap-4 mt-8"
+                    <div class="col-span-1 lg:col-span-2 flex flex-col lg:flex-row justify-end items-center gap-4 mt-8"
                         v-if="event.status !== 'CANCELLED'">
                         <span>Precio: ${{ event.price }}</span>
                         <Button class="group shadow-lg hover:scale-110 hover:brightness-105 transition-all w-48"
@@ -213,9 +213,7 @@ img {
     z-index: 11;
 }
 
-.details-grid {
-    @apply grid grid-cols-1 lg:grid-cols-2 gap-8 place-content-center mt-8;
-}
+
 
 .sl {
     @apply flex justify-start items-center gap-3 p-4 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors;

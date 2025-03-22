@@ -23,7 +23,7 @@ const eventsWithDelay = computed(() => {
 <template>
     <Head title="Subscribed"/>
     <AppLayout>
-        <div class="p-4">
+        <div class="p-4  flex flex-col">
             <div>
                 <h1 class="text-2xl font-bold">Eventos Subscritos</h1>
                 <p class="text-gray-500 dark:text-gray-400">Estos son los eventos a los que te has subscrito</p>
@@ -42,6 +42,10 @@ const eventsWithDelay = computed(() => {
                     <EventShowcaseBanner :event="event"/>
                 </div>
             </TransitionGroup>
+            <div v-if="events.data.length === 0" class="flex-1 flex flex-col items-center justify-center">
+                <p class="text-4xl font-bold mb-4">No tienes eventos subscritos!</p>
+                <img src="/svg/preocupied_greek.svg" alt="No events subscribed" class="w-1/2 h-auto max-h-[30vh] floating-doodle">
+            </div>
         </div>
     </AppLayout>
 </template>
@@ -76,4 +80,24 @@ const eventsWithDelay = computed(() => {
 .stagger-fade-move {
     transition: transform 0.5s ease;
 }
+
+.floating-doodle {
+    animation: shake-violently 100ms ease-in-out infinite;
+}
+
+@keyframes shake-violently {
+    0%, 100% {
+        transform: translateY(0) rotate(0);
+    }
+    25% {
+        transform: translateY(-15px) rotate(-5deg);
+    }
+    50% {
+        transform: translateY(0) rotate(5deg); 
+    }
+    75% {
+        transform: translateY(15px) rotate(-3deg);
+    }
+}
+
 </style>

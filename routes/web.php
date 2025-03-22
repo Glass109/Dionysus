@@ -15,6 +15,9 @@ Route::get('/profile', function () {
     return Inertia::render('Profile/Index');
 })->middleware(['auth', 'verified'])->name('profile.show');
 
+Route::get('/events', function () {
+    return redirect('/events/explore');
+})->middleware(['auth', 'verified'])->name('events.index');
 Route::get('/events/owned', [\App\Http\Controllers\EventoController::class, 'owned'])->middleware(['auth', 'verified'])->name('events.owned');
 Route::get('/events/explore', [\App\Http\Controllers\EventoController::class, 'index'])->middleware(['auth', 'verified'])->name('events.subscribed');
 Route::get('/events/subscribed', [\App\Http\Controllers\EventoController::class, 'subscribed'])->middleware(['auth', 'verified'])->name('events.subscribed');
