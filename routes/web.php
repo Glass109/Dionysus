@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
+use App\Http\Middleware\AdminMiddleware;
 Route::get('/', function () {
     return redirect('/dashboard');
 })->name('home');
@@ -33,6 +33,10 @@ Route::post('/events/cancel', [\App\Http\Controllers\EventoController::class, 'h
     ->middleware(['auth', 'verified'])->name('events.handleCancel');
 Route::post('/events/store', [\App\Http\Controllers\EventoController::class, 'store'])
     ->middleware(['auth', 'verified'])->name('events.store');
+
+Route::get('/admin', function () {
+    return Inertia::render('Admin/Index');
+})->middleware(['auth', 'verified', AdminMiddleware::class])->name('admin.index');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

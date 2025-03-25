@@ -44,7 +44,7 @@ const eventsWithDelay = computed(() => {
             </TransitionGroup>
             <div v-if="events.data.length === 0" class="flex-1 flex flex-col items-center justify-center">
                 <p class="text-4xl font-bold mb-4">No tienes eventos subscritos!</p>
-                <img src="/svg/preocupied_greek.svg" alt="No events subscribed" class="w-1/2 h-auto max-h-[30vh] floating-doodle">
+                <img src="/svg/preocupied_greek.svg" alt="No events subscribed" class="w-1/2 h-auto max-h-[30vh] floating-doodle dark:invert">
             </div>
         </div>
     </AppLayout>

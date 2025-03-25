@@ -30,6 +30,7 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'subscription_tier' => fake()->randomElement(['STANDARD', 'GOLD', 'PLATINUM', 'BRONZE', 'SILVER']),
             'remember_token' => Str::random(10),
+            'role' => 'user',
         ];
     }
 

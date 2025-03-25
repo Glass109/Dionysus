@@ -15,6 +15,7 @@ class UserSeeder extends Seeder
             'email' => 'glas109@gmail.com',
             'password' => Hash::make('password'),
             'subscription_tier' => 'PLATINUM',
+            'role' => 'admin',
         ]);
 
         User::factory()->count(19)->create();
