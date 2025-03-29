@@ -189,7 +189,9 @@ class EventoController extends Controller
         // Manejar la carga de la imagen
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('event-images', 'public');
+            // Generar un nombre único para la imagen
+            $imageName = uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
+            $imagePath = $request->file('image')->storeAs('event-images', $imageName, 'public');
         }
 
         $evento = Evento::create([
@@ -209,7 +211,11 @@ class EventoController extends Controller
 
         $evento->tier()->create([
             'tier' => 'STANDARD',
-        ]);
+            'organizer_rating_score' => 0,
+            'participation_score' => 0,
+            'subscription_score' => 0,
+            'total_score' => 0,
+        ]); 
 
         return redirect()->route('events.show', $evento->id);
     }
