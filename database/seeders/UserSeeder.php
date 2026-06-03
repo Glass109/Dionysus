@@ -18,6 +18,13 @@ class UserSeeder extends Seeder
             'role' => 'admin',
         ]);
 
-        User::factory()->count(19)->create();
+        User::factory()->create([
+            'name' => 'Invitado',
+            'email' => 'invitado@dionysus.app',
+            'password' => Hash::make('invitado'),
+            'subscription_tier' => 'STANDARD',
+        ]);
+
+        User::factory()->count(18)->create();
     }
 }

@@ -65,4 +65,17 @@ class Evento extends Model
     {
         return $this->hasMany(Review::class);
     }
+
+    public function getImageAttribute(?string $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return $value;
+        }
+
+        if (preg_match('#^https?://#i', $value)) {
+            return $value;
+        }
+
+        return asset($value);
+    }
 }

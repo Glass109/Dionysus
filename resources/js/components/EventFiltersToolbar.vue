@@ -121,7 +121,7 @@ function resetFilters() {
                     </option>
                 </select>
                 <button
-                    :title="localFilters.sort_direction === 'asc' ? 'Sort Descending' : 'Sort Ascending'"
+                    :title="localFilters.sort_direction === 'asc' ? 'Ordenar descendente' : 'Ordenar ascendente'"
                     class="p-1.5 rounded-md hover:bg-gray-100 focus:outline-none"
                     @click="localFilters.sort_direction = localFilters.sort_direction === 'asc' ? 'desc' : 'asc'; applyFilters()"
                 >
@@ -157,10 +157,10 @@ function resetFilters() {
                     @change="applyFilters"
                 >
                     <option :value="null">Cualquier tier</option>
-                    <option value="BRONZE">Bronze</option>
-                    <option value="SILVER">Silver</option>
-                    <option value="GOLD">Gold</option>
-                    <option value="PLATINUM">Platinum</option>
+                    <option value="BRONZE">Bronce</option>
+                    <option value="SILVER">Plata</option>
+                    <option value="GOLD">Oro</option>
+                    <option value="PLATINUM">Platino</option>
                 </select>
             </div>
 

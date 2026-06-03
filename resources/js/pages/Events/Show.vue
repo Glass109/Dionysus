@@ -105,7 +105,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
 
-        <Head title="Show" />
+        <Head title="Detalle" />
         <div class="grid grid-cols-1 p-4 relative" :style="{ '--event-color': event.color }">
             <!-- Decorative elements -->
             <div class="absolute -z-10 top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>

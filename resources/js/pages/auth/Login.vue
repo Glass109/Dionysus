@@ -25,6 +25,12 @@ const submit = () => {
         onFinish: () => form.reset('password'),
     });
 };
+
+const loginAsGuest = () => {
+    form.email = 'invitado@dionysus.app';
+    form.password = 'invitado';
+    submit();
+};
 </script>
 
 <template>
@@ -81,6 +87,17 @@ const submit = () => {
                 <Button type="submit" class="mt-4 w-full" :tabindex="4" :disabled="form.processing">
                     <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                     Inicia sesión
+                </Button>
+
+                <Button
+                    type="button"
+                    variant="outline"
+                    class="w-full"
+                    :tabindex="5"
+                    :disabled="form.processing"
+                    @click="loginAsGuest"
+                >
+                    Iniciar como invitado
                 </Button>
             </div>
 

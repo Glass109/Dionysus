@@ -77,7 +77,7 @@ const dialog = ref<HTMLDialogElement | null>(null);
 </script>
 
 <template>
-    <Head title="Explore"/>
+    <Head title="Explorar"/>
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="relative">
             <Transition appear name="fade">

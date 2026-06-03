@@ -1,9 +1,9 @@
 import vue from '@vitejs/plugin-vue';
 import autoprefixer from 'autoprefixer';
 import laravel from 'laravel-vite-plugin';
-import path from 'path';
-import tailwindcss from 'tailwindcss';
+import path from 'node:path';
 import { resolve } from 'node:path';
+import tailwindcss from 'tailwindcss';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -26,6 +26,17 @@ export default defineConfig({
         alias: {
             '@': path.resolve(__dirname, './resources/js'),
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
+        },
+    },
+    server: {
+        watch: {
+            ignored: [
+                '**/storage/framework/views/**',
+                '**/vendor/tightenco/ziggy/**',
+                '**/database/*.sqlite-journal',
+                '**/database/*.sqlite-shm',
+                '**/database/*.sqlite-wal',
+            ],
         },
     },
     css: {

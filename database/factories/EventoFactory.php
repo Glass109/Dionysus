@@ -50,6 +50,6 @@ class EventoFactory extends Factory
         $filename = basename($randomFile);
 
         // Return the public URL to the image
-        return asset('eventPlaceholders/' . $filename);
+        return 'eventPlaceholders/' . $filename;
     }
 }
